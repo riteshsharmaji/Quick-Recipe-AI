@@ -14,8 +14,12 @@ import { useToast } from "@/hooks/use-toast"
 
 interface Recipe {
   title: string
+  cuisine: string
+  difficulty: string
+  method: string
   cookingTime: string
   servings: string
+  dietaryInfo: string[]
   ingredients: string[]
   steps: string[]
   tips: string[]
@@ -54,23 +58,28 @@ export function RecipeGenerator() {
 
       if (inputMode === "random") {
         const randomType = randomRecipeTypes[Math.floor(Math.random() * randomRecipeTypes.length)]
+        console.log("Random type:", randomType)
         prompt = `Give me a quick, easy, and delicious recipe for ${randomType}.`
       } else if (inputMode === "manual") {
         prompt = `Give me a quick, easy, and delicious recipe for ${manualInput}.`
       } else if (inputMode === "pantry") {
         prompt = `Create a quick, easy, and delicious recipe using these ingredients I have: ${pantryIngredients}. You can suggest adding 1-2 common pantry staples if needed.`
       }
-
       // Add filters to prompt
       if (timeLimit) prompt += ` It should take less than ${timeLimit} minutes.`
       if (dietPreference) prompt += ` Make it ${dietPreference}.`
       if (effortLevel) prompt += ` Keep the effort level ${effortLevel}.`
-
+      
+      
       prompt += ` Provide the response in this exact JSON format:
       {
         "title": "Recipe Name",
+        "cuisine": "Cuisine Type",
+        "difficulty": "Beginner/Intermediate/Advanced",
+        "method": "Cooking Method",
         "cookingTime": "X minutes",
         "servings": "X servings",
+        "dietaryInfo": ["dietary info"],
         "ingredients": ["ingredient 1", "ingredient 2"],
         "steps": ["step 1", "step 2"],
         "tips": ["tip 1", "tip 2"]
@@ -110,8 +119,9 @@ export function RecipeGenerator() {
 
     const recipeText = `${recipe.title}
 
+🍽️ ${recipe.cuisine} | ⚡ ${recipe.difficulty} | 🔥 ${recipe.method}
 ⏱️ ${recipe.cookingTime} | 👥 ${recipe.servings}
-
+${recipe.dietaryInfo.length > 0 ? `🥗 ${recipe.dietaryInfo.join(", ")}\n` : ""}
 Ingredients:
 ${recipe.ingredients.map((ing) => `• ${ing}`).join("\n")}
 
@@ -335,7 +345,7 @@ ${recipe.tips.map((tip) => `💡 ${tip}`).join("\n")}`
                 <div className="flex justify-between items-start">
                   <div>
                     <CardTitle className="text-2xl text-balance">{recipe.title}</CardTitle>
-                    <div className="flex gap-4 mt-2">
+                    <div className="flex gap-2 mt-2 flex-wrap">
                       <Badge variant="secondary" className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {recipe.cookingTime}
@@ -344,6 +354,20 @@ ${recipe.tips.map((tip) => `💡 ${tip}`).join("\n")}`
                         <Users className="w-3 h-3" />
                         {recipe.servings}
                       </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {recipe.cuisine}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {recipe.difficulty}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {recipe.method}
+                      </Badge>
+                      {recipe.dietaryInfo.length > 0 && (
+                        <Badge variant="outline" className="text-xs">
+                          {recipe.dietaryInfo.join(", ")}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -447,7 +471,7 @@ ${recipe.tips.map((tip) => `💡 ${tip}`).join("\n")}`
                         <div className="flex justify-between items-start">
                           <div>
                             <CardTitle className="text-lg">{fav.title}</CardTitle>
-                            <div className="flex gap-2 mt-1">
+                            <div className="flex gap-2 mt-1 flex-wrap">
                               <Badge variant="outline" className="text-xs">
                                 <Clock className="w-3 h-3 mr-1" />
                                 {fav.cookingTime}
@@ -455,6 +479,12 @@ ${recipe.tips.map((tip) => `💡 ${tip}`).join("\n")}`
                               <Badge variant="outline" className="text-xs">
                                 <Users className="w-3 h-3 mr-1" />
                                 {fav.servings}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {fav.cuisine}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {fav.difficulty}
                               </Badge>
                             </div>
                           </div>
